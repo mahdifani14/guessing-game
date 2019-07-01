@@ -10,7 +10,8 @@
     "webpack:server": "webpack --config webpack.server.js --watch",
     "webpack:start": "nodemon --watch build --exec node build/bundle.js",
     "dev": "npm-run-all --parallel start:generator webpack:*",
-    "build": "webpack --config webpack.client.js && webpack --config webpack.server.js"
+    "build": "webpack --config webpack.client.js && webpack --config webpack.server.js",
+    "clean": "rm -rf build"
   },
   "author": "Mahdi Fanidisfani <mahdifani1369@gmail.com>",
   "license": "MIT",

@@ -1,28 +1,38 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import {Helmet} from 'react-helmet';
+
+const getInitialState = () =>
+  ({
+    status: 'play',
+    nextMove: "Guess a number between 1 and 1000",
+    guess: 0,
+    try: 0,
+    error: null,
+    target: null
+  });
+
+
+const head = () => (
+  <Helmet>
+    <title>Gussing Game</title>
+  </Helmet>
+);
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
-    this.state = this.getInitialState();
+    this.state = getInitialState();
+
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.resetGame = this.resetGame.bind(this);
+    this.getRandNum = this.getRandNum.bind(this);
   }
 
-  getInitialState() {
-    return {
-       status: 'start',
-       nextMove: "Guess a number between 1 and 1000",
-       guess: 0,
-       try: 0,
-       error: null,
-       target: null
-     };
-   }
-
-   resetGame() {
-    this.setState(this.getInitialState());
+  resetGame() {
+    if (this.state.status !== 'fail') {
+      this.setState(getInitialState());
+    }
   }
 
   componentDidMount() {
@@ -30,23 +40,23 @@ class Home extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if(prevState.status === 'win'){
-        this.getRandNum();
+    if (prevState.status === 'win') {
+      this.getRandNum();
+    }
+
+    if (prevState.status === 'win') {
+      this.getRandNum();
     }
   }
 
   getRandNum() {
     fetch('http://localhost:3003/rand')
       .then(response => response.json())
-      .then(data => this.setState({ target: data.randomNum }));
-  }
-
-  head() {
-    return (
-      <Helmet>
-        <title>Gussing Game</title>
-      </Helmet>
-    );
+      .then(data => this.setState({
+        target: data.randomNum,
+        status: 'play'
+      }))
+      .catch(() => this.setState({status: 'fail'}));
   }
 
   onChange(event) {
@@ -83,23 +93,25 @@ class Home extends React.Component {
       this.setState({
         error: 'Value must be between 1 and 1000!'
       });
+      return;
     }
 
     if (guess === target) {
       this.setState({status: 'win'});
+      return;
+    }
+
+    if (guess > target) {
+      this.setState({nextMove: 'Too high'});
     } else {
-      if (guess > target) {
-        this.setState({nextMove: 'Too high'});
-      } else {
-        this.setState({nextMove: 'Too low'});
-      }
+      this.setState({nextMove: 'Too low'});
     }
   }
 
-  render(){
+  render() {
     if (this.state.status === 'win') {
       return (
-        <div style={{textAlign: 'center'}}>
+        <div style={{textAlign: 'center', marginTop: '15%'}}>
           <h1 style={{color: 'green'}}>You Won!</h1>
           <p>Random number: {this.state.target}</p>
           <p>Number of tries: {this.state.try}</p>
@@ -108,15 +120,29 @@ class Home extends React.Component {
       );
     }
 
-    return(
-      <div style={{textAlign: 'center'}}>
-        {this.head()}
+    if (this.state.status === 'fail') {
+      return (
+        <div style={{textAlign: 'center', marginTop: '15%'}}>
+          <h1 style={{color: 'red'}}>Game is not available!</h1>
+          <button onClick={this.getRandNum}>Try again</button>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{textAlign: 'center', marginTop: '15%'}}>
+        {head()}
         <h1>Gussing Game</h1>
-        {this.state.error &&
-          <p style={{color: 'red'}}>{this.state.error}</p>}
+        <p style={{textAlign: 'left', width: '50%%', display: 'inline-table'}}>
+          <b>Instruction:</b><br/>* insert a guess between 1-1000
+          <br/>* if the number is higher than target "Too high" will be displayed
+          <br/>* if the number is lower than target "Too low" will be displayed
+        </p>
         <p>{this.state.nextMove}</p>
-        <input type='text' placeholder='14' onChange={this.onChange} style={{marginRight: '8px'}} />
-        <button onClick={this.onSubmit}>Check your guess</button>
+        {this.state.error && <p style={{color: 'red'}}>{this.state.error}</p>}
+        <input type='text' style={{marginRight: '8px', textAlign: 'center', height: '32px', width: '48px'}}
+               placeholder='1-1000' onChange={this.onChange}/>
+        <button onClick={this.onSubmit} style={{height: '32px'}}>Check</button>
       </div>
     );
   }

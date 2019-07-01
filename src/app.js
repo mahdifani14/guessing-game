@@ -9,7 +9,7 @@ class App extends React.Component {
       <Switch>
         <Route path="/" render={props => (
           <Home {...props} />
-        )} />
+        )}/>
       </Switch>
     );
   }

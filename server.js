@@ -1,8 +1,8 @@
 import express from 'express';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { StaticRouter } from 'react-router';
-import { Helmet } from 'react-helmet';
+import {StaticRouter} from 'react-router';
+import {Helmet} from 'react-helmet';
 import App from './src/app';
 import bodyParser from 'body-parser';
 
@@ -13,11 +13,10 @@ app.use(bodyParser.json());
 app.use(express.static('build/public'));
 
 app.get('*', (req, res) => {
-  const randomNum = Math.random() % 1000;
   const context = {};
   const content = ReactDOMServer.renderToString(
-    <StaticRouter location={req.url} context={context} >
-      <App />
+    <StaticRouter location={req.url} context={context}>
+      <App/>
     </StaticRouter>
   );
 
@@ -38,7 +37,7 @@ app.get('*', (req, res) => {
     `;
 
   res.send(html);
-})
+});
 
 app.listen(PORT, () => {
   console.log(`App running ${PORT}`);
